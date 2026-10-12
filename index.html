@@ -1,0 +1,584 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brothers Food Points</title>
+
+<style>
+  
+/* Pizza sizes and prices always visible */
+.pizza-prices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  margin: 4px 0;
+}
+
+.pizza-price-option {
+  background: #29241d;
+  border: 1px solid #55432b;
+  border-radius: 7px;
+  padding: 8px 3px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.pizza-price-option span {
+  display: block;
+  color: #ccc;
+  margin-bottom: 5px;
+}
+
+.pizza-price-option strong {
+  color: #ffb52e;
+  font-size: 13px;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#111;color:#fff4df;font-family:Arial,sans-serif;padding-bottom:100px}
+
+header{background:#1b1915;padding:18px;text-align:center;border-bottom:2px solid #ffb52e}
+header h1{color:#ffb52e;margin:0}
+nav{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:14px}
+a{color:#ffbd45}
+nav a{text-decoration:none}
+nav a:hover{color:#fff}
+.hero{text-align:center;padding:55px 18px;background:linear-gradient(120deg,#25170e,#111)}
+.hero h2{font-size:clamp(28px,5vw,42px);margin:0 0 12px}
+.hero span{color:#ffb52e}
+.hero p{color:#ccc;line-height:1.6}
+.btn{display:inline-block;background:#ffb52e;color:#211609;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:bold;border:0;cursor:pointer;margin:5px}
+.btn:hover,.card button:hover{background:#ffd16c}
+section{padding:30px 16px;max-width:1150px;margin:auto;scroll-margin-top:15px}
+h2.section-title{color:#ffb52e}
+#search{width:100%;padding:13px;border-radius:8px;border:1px solid #55432b;background:#211e19;color:white;margin:10px 0 18px;font-size:16px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.filters button{background:#29241d;color:#fff;border:1px solid #55432b;padding:9px 13px;border-radius:20px;cursor:pointer}
+.filters button.active{background:#ffb52e;color:#211609}
+.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.card{background:#201e1a;border:1px solid #44382a;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-width:0;transition:transform .2s,border-color .2s}
+.card:hover{transform:translateY(-3px);border-color:#ffb52e}
+.food-image{width:100%;height:180px;object-fit:cover;display:block;background:#29241d}
+.card-content{padding:15px;display:flex;flex-direction:column;gap:10px;flex:1}
+.card h3{margin:0;color:#fff;font-size:18px}
+.card p{margin:0;color:#bbb;line-height:1.5}
+.card small{color:#ffb52e}
+.price{color:#ffb52e;font-weight:bold;font-size:17px}
+```css
+/* Always show pizza sizes and prices */
+.pizza-prices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  margin: 4px 0;
+}
+
+.pizza-price-option {
+  background: #29241d;
+  border: 1px solid #55432b;
+  border-radius: 7px;
+  padding: 8px 3px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.pizza-price-option span {
+  display: block;
+  color: #ccc;
+  margin-bottom: 5px;
+}
+
+.pizza-price-option strong {
+  color: #ffb52e;
+  font-size: 13px;
+}
+```select{padding:10px;border-radius:6px;background:#29241d;color:white;border:1px solid #55432b;width:100%}
+.card button{padding:11px;border:0;border-radius:7px;background:#ffb52e;font-weight:bold;cursor:pointer;margin-top:auto}
+.cart{background:#201e1a;padding:18px;border-radius:12px;border:1px solid #44382a}
+.cart-item{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #444;padding:12px 0}
+.cart-item button{background:#ffb52e;color:#211609;border:0;padding:7px 11px;border-radius:4px;cursor:pointer;font-weight:bold}
+.cart-item .item-info{flex:1}
+.cart-item small{color:#bbb}
+.total{font-size:22px;font-weight:bold;margin:20px 0}
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.contact-card{background:#201e1a;border:1px solid #44382a;border-radius:12px;padding:18px}
+.contact-card h3{color:#ffb52e}
+footer{text-align:center;background:#1b1915;padding:24px;color:#bbb;line-height:1.8}
+.empty{text-align:center;color:#bbb;padding:25px}
+
+/* FIXED CART BAR */
+#quickCartBar{
+ position:fixed;left:12px;right:12px;bottom:12px;z-index:10000;
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ padding:11px 13px;border:1px solid #ffcf70;border-radius:14px;
+ background:#ffb52e;color:#211609;box-shadow:0 5px 22px rgba(0,0,0,.45)
+}
+#quickCartSummary{min-width:0;flex:1;font-weight:800;line-height:1.35;cursor:pointer}
+#quickCartSummary small{display:block;font-weight:600;font-size:12px}
+#quickCartBar .quick-cart-btn{
+ border:0;border-radius:9px;padding:11px 12px;font-weight:800;
+ background:#211609;color:#fff4df;cursor:pointer;white-space:nowrap
+}
+#quickCartBar .quick-order-btn{background:#198754;color:white}
+@media(max-width:500px){
+ header h1{font-size:23px}
+ .hero{padding:40px 14px}
+ .menu{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .food-image{height:125px}
+ .card-content{padding:10px;gap:8px}
+ .card h3{font-size:15px}
+ .card p{font-size:13px}
+ .card button{font-size:12px;padding:10px 5px}
+ .price{font-size:15px}
+ .cart-item{flex-wrap:wrap}
+}
+@media(max-width:380px){
+ #quickCartBar{left:7px;right:7px;bottom:7px;gap:6px;padding:9px}
+ #quickCartBar .quick-cart-btn{padding:10px 8px;font-size:12px}
+ #quickCartSummary{font-size:13px}
+ #quickCartSummary small{font-size:10px}
+}
+</style>
+</head>
+
+<body>
+
+<div style="
+  background:#1b1915;
+  border:1px solid #ffb52e;
+  border-radius:10px;
+  margin:8px 10px;
+  padding:10px 8px;
+  text-align:center;
+  color:#fff4df;
+  font-family:Arial,sans-serif;
+">
+  <div style="
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    color:#ffb52e;
+    font-size:11px;
+    font-weight:bold;
+    letter-spacing:1px;
+    margin-bottom:5px;
+  ">
+    <span>✦</span>
+    <span>WEDNESDAY &amp; SATURDAY SPECIAL</span>
+    <span>✦</span>
+  </div>
+
+  <div style="
+    font-size:20px;
+    font-weight:900;
+    letter-spacing:1px;
+    margin:3px 0;
+  ">
+    🍕 BUY 1 GET 1 FREE 🍕
+  </div>
+
+  <div style="
+    color:#ffb52e;
+    font-size:11px;
+    font-weight:bold;
+    letter-spacing:.5px;
+    margin-top:4px;
+  ">
+    MEDIUM PIZZA ON LARGE PIZZA
+  </div>
+</div>
+
+<header>
+<h1>BROTHERS FOOD POINTS</h1>
+<p>Fresh Food • Great Taste • Good Mood</p>
+<nav>
+<a href="#home">Home</a>
+<a href="#menu">Menu</a>
+<a href="#cart">My Cart</a>
+<a href="#contact">Contact</a>
+</nav>
+</header>
+
+<div class="hero" id="home">
+<h2>Your Cravings, <span>Our Speciality!</span></h2>
+<p>Delicious Pizzas, Burgers, Sandwiches, Wraps and More.</p>
+<p>Agondh, Theh Bhutana Road, Near King Sehaj Palace</p>
+<a class="btn" href="#menu">Explore Menu</a>
+<a class="btn" href="https://wa.me/919041249421" target="_blank" rel="noopener">WhatsApp Us</a>
+</div>
+
+<section id="menu">
+<h2 class="section-title">Our Digital Menu 🍕</h2>
+<input id="search" type="search" placeholder="Search pizza, burger, fries..." oninput="renderMenu()" aria-label="Search food menu">
+<div class="filters" id="filters"></div>
+<div class="menu" id="menuList"></div>
+</section>
+
+<section id="cart">
+<h2 class="section-title">Your Cart 🛒</h2>
+<div class="cart">
+<div id="cartList">Your cart is empty.</div>
+<div class="total">Total: <span id="total">₹0</span></div>
+<button class="btn" onclick="orderWhatsApp()">Order on WhatsApp</button>
+</div>
+</section>
+
+<section id="contact">
+<h2 class="section-title">Contact & Location</h2>
+<div class="contact-grid">
+<div class="contact-card">
+<h3>📞 Call Us</h3>
+<p>9041249421</p>
+<a href="tel:+919041249421">Call Now</a>
+</div>
+<div class="contact-card">
+<h3>💬 WhatsApp Orders</h3>
+<p>Message us directly on WhatsApp.</p>
+<a href="https://wa.me/919041249421" target="_blank" rel="noopener">Open WhatsApp</a>
+</div>
+<div class="contact-card">
+<h3>📍 Visit Us</h3>
+<p>Agondh, Theh Bhutana Road, near King Sehaj Palace</p>
+<a href="https://maps.app.goo.gl/ZSc7LQypr5pM13yD9" target="_blank" rel="noopener">Open Google Maps</a>
+</div>
+```html
+<div class="contact-card instagram-card"
+     style="text-align:center;">
+
+  <a href="https://www.instagram.com/brothers_food_point_agondh/"
+     target="_blank"
+     rel="noopener noreferrer"
+     style="text-decoration:none; display:flex;
+            flex-direction:column; align-items:center;
+            gap:12px;">
+
+    <svg viewBox="0 0 100 100"
+         width="90" height="90"
+         aria-label="Instagram logo"
+         role="img">
+      <defs>
+        <linearGradient id="instagramGradient"
+                        x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0%" stop-color="#feda75"/>
+          <stop offset="35%" stop-color="#fa7e1e"/>
+          <stop offset="65%" stop-color="#d62976"/>
+          <stop offset="100%" stop-color="#4f5bd5"/>
+        </linearGradient>
+      </defs>
+
+      <rect x="3" y="3" width="94" height="94"
+            rx="25" fill="url(#instagramGradient)"/>
+      <rect x="22" y="22" width="56" height="56"
+            rx="17" fill="none" stroke="white"
+            stroke-width="6"/>
+      <circle cx="50" cy="50" r="14"
+              fill="none" stroke="white"
+              stroke-width="6"/>
+      <circle cx="68" cy="32" r="4.5" fill="white"/>
+    </svg>
+
+    <span style="color:#ffb52e; font-weight:bold;">
+      Follow Us on Instagram
+    </span>
+
+    <span style="color:#f28ad8; font-size:14px;">
+      @brothers_food_point_agondh
+    </span>
+
+  </a>
+</div>
+```
+
+</div>
+</section>
+
+<footer>
+<strong>Brothers Food Points</strong><br>
+Agondh, Theh Bhutana Road, Near King Sehaj Palace<br>
+Phone / WhatsApp: 9041249421<br>
+© <span id="year"></span> Brothers Food Points
+</footer>
+
+<script>
+"use strict";
+
+const WHATSAPP_NUMBER = "919041249421";
+
+const foodImages = {
+ Pizza:"https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=700&q=80",
+ Burger:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=700&q=80",
+ Sandwich:"https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=700&q=80",
+ Wraps:"https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=700&q=80",
+ Fries:"https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=700&q=80",
+ Pasta:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=700&q=80",
+ Shakes:"https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=900&q=85",
+ Drinks:"https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=700&q=80",
+ Sides:"https://images.unsplash.com/photo-1619531040576-f9416740661a?auto=format&fit=crop&w=900&q=85",
+ Salad:"https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=700&q=80",
+ Maggie:"https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?auto=format&fit=crop&w=900&q=85"
+};
+
+const pizzas = [
+["Its All About Cheese","Classic Pizza",{Regular:140,Medium:290,Large:430}],
+["Farm House","Classic Pizza",{Regular:140,Medium:290,Large:430}],
+["Chilli Mexican","Classic Pizza",{Regular:140,Medium:290,Large:430}],
+["Country Feast","Classic Pizza",{Regular:140,Medium:290,Large:430}],
+["Tandoori Pizza","Supreme Pizza",{Regular:190,Medium:320,Large:450}],
+["Makhni Paneer","Supreme Pizza",{Regular:190,Medium:320,Large:450}],
+["Achari Pizza","Supreme Pizza",{Regular:190,Medium:320,Large:450}],
+["Spicy Italian","Supreme Pizza",{Regular:190,Medium:320,Large:450}],
+["Veg Crispy Pizza","Ultimate Pizza",{Regular:210,Medium:420,Large:550}],
+["Top Wonder","Ultimate Pizza",{Regular:210,Medium:420,Large:550}],
+["Veg Overland","Ultimate Pizza",{Regular:210,Medium:420,Large:550}],
+["Brothers Food Points Special","Special",{Large:700}]
+];
+
+const foods = [
+["Veg Crispy Burger","Burger",50],
+["Cheese Burger","Burger",70],
+["Corn Burger","Burger",60],
+["Paneer Burger","Burger",80],
+["Maharaja Burger","Burger",100],
+["Allo Tikki Burger","Burger",40],
+["Veg Sandwich","Sandwich",50],
+["Corn Spicy Sandwich","Sandwich",60],
+["Paneer Sandwich","Sandwich",80],
+["Hot Crunchy Sandwich","Sandwich",80],
+["Chessy Sandwich","Sandwich",90],
+["Allo Tikki Wrap","Wraps",50],
+["Frise Wrap","Wraps",50],
+["Paneer Wrap","Wraps",80],
+["Chessy Wrap","Wraps",80],
+["French Fries","Fries",60],
+["Peri Peri Fries","Fries",70],
+["Masala Fries","Fries",70],
+["Loadad Fries","Fries",90],
+["White Sauce Pasta","Pasta",100],
+["Red Sauce Pasta","Pasta",100],
+["Tandoori Paneer Pasta","Pasta",110],
+["Mix Sauce Pasta","Pasta",120],
+["Cold Coffee","Shakes",80],
+["Oreo Choclate Shake","Shakes",90],
+["Choclate Shake","Shakes",75],
+["Blueberry Shake","Shakes",70],
+["Strawberry Shake","Shakes",60],
+["Vanila Shake","Shakes",60],
+["Mint Mojito","Shakes",65],
+["Blue Lagon","Shakes",80],
+["Coke 300ml","Shakes",30],
+["Hot Coffee","Shakes",55],
+["Plain Garlic Bread","Sides",80],
+["Stuffed Garlic Bread","Sides",90],
+["Pocket Garlic Bread","Sides",90],
+["Zingy parcel","Sides",45],
+["Paneer parcel","Sides",55],
+["Chocolawa Cake","Sides",70],
+["Veg Gym Salad","Salad",100],
+["Veg Paneer Salad","Salad",100],
+["Boiled Maggie","Maggie",40],
+["Masala Maggie","Maggie",60],
+["Cold Coffee","Drinks",80],
+["Chocolate Shake","Drinks",100]
+];
+
+let items = [];
+
+pizzas.forEach(p => items.push({
+ id:items.length,name:p[0],category:"Pizza",group:p[1],prices:p[2],pizza:true
+}));
+
+foods.forEach(f => items.push({
+ id:items.length,name:f[0],category:f[1],price:f[2],pizza:false
+}));
+
+let category = "All";
+let cart = [];
+
+const categories = [
+"All","Pizza","Burger","Sandwich","Wraps","Fries",
+"Maggie","Salad","Pasta","Shakes","Drinks","Sides"
+];
+
+function money(n){
+ return "₹"+Number(n).toLocaleString("en-IN");
+}
+
+function renderFilters(){
+ document.getElementById("filters").innerHTML=categories.map(c=>
+  `<button type="button" class="${category===c?"active":""}" aria-pressed="${category===c}" onclick="setCategory('${c}')">${c}</button>`
+ ).join("");
+}
+
+function setCategory(c){
+ category=c;
+ renderFilters();
+ renderMenu();
+}
+
+function renderMenu(){
+ const q=document.getElementById("search").value.trim().toLowerCase();
+ const list=items.filter(i=>
+  (category==="All"||i.category===category)&&i.name.toLowerCase().includes(q)
+ );
+ const menu=document.getElementById("menuList");
+
+ if(!list.length){
+  menu.innerHTML='<p class="empty">No items found. Try another search.</p>';
+  return;
+ }
+
+ menu.innerHTML=list.map(i=>{
+  const price=i.pizza
+   ?"From "+money(Math.min(...Object.values(i.prices)))
+   :money(i.price);
+
+  const sizes=i.pizza
+   ?`<select id="size${i.id}" aria-label="Choose size for ${i.name}">
+      ${Object.entries(i.prices).map(([s,p])=>
+       `<option value="${s}">${s} - ${money(p)}</option>`
+      ).join("")}
+     </select>`
+   :"";
+
+  const itemImageOverrides={
+   "Boiled Maggie":foodImages.Maggie,
+   "Masala Maggie":foodImages.Maggie,
+   "Plain Garlic Bread":foodImages.Sides,
+   "Stuffed Garlic Bread":foodImages.Sides,
+   "Pocket Garlic Bread":foodImages.Sides,
+   "Cold Coffee":foodImages.Shakes,
+   "Oreo Choclate Shake":foodImages.Shakes,
+   "Choclate Shake":foodImages.Shakes,
+   "Blueberry Shake":foodImages.Shakes,
+   "Strawberry Shake":foodImages.Shakes,
+   "Vanila Shake":foodImages.Shakes
+  };
+
+  const image=itemImageOverrides[i.name]||foodImages[i.category]||foodImages.Sides;
+
+  return `
+  <article class="card">
+   <img class="food-image" src="${image}" alt="${i.name}" loading="lazy"
+    onerror="this.onerror=null;this.src='https://placehold.co/600x400/29241d/ffb52e?text=Brothers+Food+Points';">
+   <div class="card-content">
+    <small>${i.group||i.category}</small>
+    <h3>${i.name}</h3>
+    <p>${i.pizza?"Freshly prepared pizza.":"Tasty and freshly prepared."}</p>
+    <div class="price">${price}</div>
+    ${sizes}
+    <button type="button" onclick="addItem(${i.id})">+ Add to Cart</button>
+   </div>
+  </article>`;
+ }).join("");
+}
+
+function addItem(id){
+ const i=items.find(x=>x.id===id);
+ if(!i)return;
+
+ const size=i.pizza?document.getElementById("size"+id).value:"";
+ const price=i.pizza?i.prices[size]:i.price;
+ const key=id+"-"+size;
+ const old=cart.find(x=>x.key===key);
+
+ if(old){
+  old.qty++;
+ }else{
+  cart.push({key,name:i.name,size,price,qty:1});
+ }
+ renderCart();
+}
+
+function goToCart(){
+ document.getElementById("cart").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function updateQuickCart(){
+ const count=cart.reduce((sum,x)=>sum+x.qty,0);
+ const total=cart.reduce((sum,x)=>sum+x.price*x.qty,0);
+ document.getElementById("quickCartCount").textContent=count+(count===1?" item":" items");
+ document.getElementById("quickCartTotal").textContent=money(total);
+}
+
+function renderCart(){
+ let total=0;
+ const cartList=document.getElementById("cartList");
+
+ if(!cart.length){
+  cartList.textContent="Your cart is empty.";
+  document.getElementById("total").textContent=money(0);
+  updateQuickCart();
+  return;
+ }
+
+ cartList.innerHTML=cart.map((x,index)=>{
+  const subtotal=x.price*x.qty;
+  total+=subtotal;
+
+  return `
+  <div class="cart-item">
+   <div class="item-info">
+    <strong>${x.name}</strong><br>
+    <small>${x.size?x.size+" · ":""}${money(x.price)} each</small>
+   </div>
+   <div>
+    <button type="button" aria-label="Decrease quantity" onclick="changeQty(${index},-1)">−</button>
+    <span>${x.qty}</span>
+    <button type="button" aria-label="Increase quantity" onclick="changeQty(${index},1)">+</button>
+   </div>
+   <strong>${money(subtotal)}</strong>
+  </div>`;
+ }).join("");
+
+ document.getElementById("total").textContent=money(total);
+ updateQuickCart();
+}
+
+function changeQty(index,delta){
+ if(!cart[index])return;
+ cart[index].qty+=delta;
+ if(cart[index].qty<=0)cart.splice(index,1);
+ renderCart();
+}
+
+function orderWhatsApp(){
+ if(!cart.length){
+  alert("Please add items to your cart first.");
+  return;
+ }
+
+ const total=cart.reduce((sum,x)=>sum+x.price*x.qty,0);
+ const lines=cart.map(x=>
+  `${x.name}${x.size?" ("+x.size+")":""} x ${x.qty} = ${money(x.price*x.qty)}`
+ );
+
+ const msg="Hello Brothers Food Points! I want to place an order:\n\n"+
+  lines.join("\n")+"\n\nTotal: "+money(total)+
+  "\n\nPlease confirm my order.";
+
+ const url="https://wa.me/"+WHATSAPP_NUMBER+"?text="+encodeURIComponent(msg);
+ window.open(url,"_blank","noopener");
+}
+
+document.getElementById("year").textContent=new Date().getFullYear();
+renderFilters();
+renderMenu();
+renderCart();
+</script>
+
+<div id="quickCartBar" aria-label="Cart summary">
+ <div id="quickCartSummary" role="button" tabindex="0"
+  onclick="goToCart()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goToCart();}">
+  🛒 <span id="quickCartCount">0 items</span> · <span id="quickCartTotal">₹0</span>
+  <small>Tap to view all items in your cart</small>
+ </div>
+ <button type="button" class="quick-cart-btn" onclick="goToCart()">View Cart</button>
+ <button type="button" class="quick-cart-btn quick-order-btn" onclick="orderWhatsApp()">Order</button>
+</div>
+
+</body>
+</html>
